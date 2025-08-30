@@ -170,8 +170,8 @@ class PrctlTest(unittest.TestCase):
             self.assertEqual(prctl.get_fp_mode(), prctl.FP_MODE_FRE)
             self.assertRaises(ValueError, prctl.set_fp_mode, 999)
         else:
-            self.assertRaises(OSError, prctl.get_fpexc)
-            self.assertRaises(OSError, prctl.set_fpexc)
+            self.assertRaises(OSError, prctl.get_fp_mode)
+            self.assertRaises(ValueError, prctl.set_fp_mode)
 
     @require('set_io_flusher')
     def test_io_flusher(self):
