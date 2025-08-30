@@ -120,6 +120,11 @@ class PrctlTest(unittest.TestCase):
             prctl.set_endian(prctl.ENDIAN_LITTLE)
             self.assertEqual(prctl.get_endian(), prctl.ENDIAN_LITTLE)
             self.assertRaises(ValueError, prctl.set_endian, 999)
+        if self.arch == 'ppc64le':
+            # Switching to BIG_ENDIAN crashes due to memory corruption.
+            prctl.set_endian(prctl.ENDIAN_LITTLE)
+            self.assertEqual(prctl.get_endian(), prctl.ENDIAN_LITTLE)
+            self.assertRaises(ValueError, prctl.set_endian, 999)
         else:
             self.assertRaises(OSError, prctl.get_endian)
             self.assertRaises(OSError, prctl.set_endian)
@@ -143,6 +148,12 @@ class PrctlTest(unittest.TestCase):
             # FIXME - untested
             prctl.set_fpexc(prctl.FP_EXC_SW_ENABLE)
             self.assertEqual(prctl.get_fpexc() & prctl.PR_FP_EXC_SW_ENABLE, prctl.PR_FP_EXC_SW_ENABLE)
+            self.assertRaises(ValueError, prctl.set_fpexc, 999)
+        elif self.arch == 'ppc64le':
+            self.assertEqual(prctl.get_fpexc(), 0)
+            prctl.set_fpexc() # TODO: raises with any argument?
+            # TODO: should this really raise?
+            self.assertRaises(OSError, prctl.set_fpexc, prctl.FP_EXC_SW_ENABLE)
             self.assertRaises(ValueError, prctl.set_fpexc, 999)
         else:
             self.assertRaises(OSError, prctl.get_fpexc)
@@ -377,8 +388,8 @@ class PrctlTest(unittest.TestCase):
 
     def test_unalign(self):
         """Test manipulation of the unaligned access setting"""
-        if self.arch in ('ia64', 'parisc', 'powerpc', 'alpha'):
-            # FIXME untested
+        if self.arch in ('ia64', 'parisc', 'powerpc', 'alpha', 'ppc64le'):
+            # FIXME untested (tested only on ppc64le)
             prctl.set_unalign(prctl.UNALIGN_NOPRINT)
             self.assertEqual(prctl.get_unalign(), prctl.UNALIGN_NOPRINT)
             prctl.set_unalign(prctl.UNALIGN_SIGBUS)
