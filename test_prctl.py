@@ -244,8 +244,8 @@ class PrctlTest(unittest.TestCase):
 
     @require('pac_reset_keys')
     def test_pac_reset_keys(self):
-        if self.arch == 'arm64':
-            # FIXME untested
+        if self.arch in ('arm64', 'aarch64'):
+            # FIXME untested on arm64
             self.assertEqual(prctl.pac_reset_keys(prctl.PAC_APIAKEY), None)
             self.assertRaises(ValueError, prctl.pac_reset_keys, 0xff)
         else:
@@ -376,7 +376,7 @@ class PrctlTest(unittest.TestCase):
     @require('set_tsc')
     def test_tsc(self):
         """Test manipulation of the timestamp counter flag"""
-        if re.match('i.86|x86_64', self.arch):
+        if re.match('i.86|x86_64', self.arch) or self.arch == 'aarch64':
             prctl.set_tsc(prctl.TSC_SIGSEGV)
             self.assertEqual(prctl.get_tsc(), prctl.TSC_SIGSEGV)
             prctl.set_tsc(prctl.TSC_ENABLE)
